@@ -16,14 +16,14 @@
     * find path (go out)
         > take out current location  
         > check if it reaches the end  
-          > - if reaches the end  
+        > * if reaches the end  
               1. create a path;  
               2. before goes back the the start point  
                 - push current location into path;  
                 - take out pre location from table
                 - color marker  
                 - repeat above until goes back to the start  
-          > - if not  
+        > * if not  
               1. insert the next point
 2. Sorted class
     * give 
