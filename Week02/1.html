@@ -24,8 +24,39 @@
   <div id='container'></div>  
   <button onclick="localStorage['map'] = JSON.stringify(map)">save</button>
   <script>
-    // let map = localStorage['map'] ? JSON.parse(localStorage["map"]) : Array(10000).fill(0);
-    let map = Array(10000).fill(0)
+    //optimize data structure
+    class Sorted {
+      constructor(data, compare) {
+        this.data = data.slice();
+        this.compare = compare || ((a, b) => a - b);
+      }
+
+      //ensure take the min every time
+      take() {
+        if (!this.data.length) return ;
+        //initialize
+        let min = this.data[0];
+        let minIndex = 0;
+
+        for(let i = 1; i < this.data.length; i++) {
+          if (this.compare(this.data[i], min) < 0) {
+            min = this.data[i];
+            minIndex = i;
+          } 
+        }
+
+        this.data[minIndex] = this.data[this.data.length - 1];
+        this.data.pop()
+        return min;
+      }
+
+      give(v) {
+        this.data.push(v);  
+      }
+    }
+
+    let map = localStorage['map'] ? JSON.parse(localStorage["map"]) : Array(10000).fill(0);
+    // let map = Array(10000).fill(0)
 
     let container = document.getElementById("container");
     for (let y = 0; y < 100; y++) {
@@ -75,7 +106,7 @@
     async function findPath(map, start, end) {
       // create a table to store pre path
       let table = Object.create(map) 
-      let queue = [start] // this spirit of guangdu youxian
+      let queue = new Sorted([start], (a, b) => distance(a) - distance(b)) // this spirit of guangdu youxian
 
       async function insert(x, y, pre) {
         // edge case
@@ -90,12 +121,16 @@
         //mark 
         // map[100 * y + x] = 2;
         table[100 * y + x] = pre;
-        queue.push([x, y])
+        queue.give([x, y])
+      }
+      
+      function distance(point) {
+        return (point[0] - end[0]) ** 2 + (point[1] - end[1]) ** 2
       }
 
       //  如何进站 
-      while(queue.length) {
-        let [x, y] = queue.shift() // 出站
+      while(queue.data.length) {
+        let [x, y] = queue.take() // 出站
         console.log(x, y)
         // if equals to end
         if (x === end[0] && y === end[1]) {
